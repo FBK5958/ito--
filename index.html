@@ -160,6 +160,7 @@ let hands = [];
 let submitOrder = [];
 let phase = "waiting";
 let isRevealing = false;
+let round = 0;  // ★ ラウンド番号を追加（3回目バグ対策）
 
 const joinBtn = document.getElementById("joinBtn");
 const dealBtn = document.getElementById("dealBtn");
@@ -226,7 +227,8 @@ joinBtn.onclick = async () => {
       players: [playerName],
       hands: [],
       submitOrder: [],
-      phase: "waiting"
+      phase: "waiting",
+      round: 0
     };
     await set(roomRef, data);
     playerIndex = 0;
@@ -275,6 +277,7 @@ function setupRoomListener(roomId) {
     hands = data.hands || [];
     submitOrder = data.submitOrder || [];
     phase = data.phase || "waiting";
+    round = data.round || 0;
 
     renderHands();
     renderSubmitButtons();
@@ -311,7 +314,8 @@ dealBtn.onclick = async () => {
   await update(roomRef, {
     hands: newHands,
     submitOrder: [],
-    phase: "playing"
+    phase: "playing",
+    round: data.round + 1   // ★ ラウンドを進める
   });
 
   statusEl.textContent = "カードを配りました";
@@ -382,7 +386,8 @@ async function submitCard(index) {
   newSubmit.push({
     id: Date.now() + Math.random(),
     value: cardValue,
-    player: playerName
+    player: playerName,
+    round: data.round  // ★ ラウンド番号も保存
   });
 
   const updates = {
