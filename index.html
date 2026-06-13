@@ -70,14 +70,6 @@
     background: #333;
     font-size: 14px;
   }
-  .card-img-small {
-    width: 40px;
-    height: auto;
-    vertical-align: middle;
-    margin-right: 6px;
-    border-radius: 6px;
-    box-shadow: 0 0 4px #000;
-  }
 </style>
 </head>
 
@@ -167,7 +159,7 @@ let playersCount = 4;
 let hands = [];
 let submitOrder = [];
 let phase = "waiting";
-let isRevealing = false;   // ← 追加
+let isRevealing = false;
 
 const joinBtn = document.getElementById("joinBtn");
 const dealBtn = document.getElementById("dealBtn");
@@ -381,11 +373,14 @@ async function submitCard(index) {
   const cardValue = myCards[index];
   if (cardValue === null) return;
 
-  const newHands = data.hands.map(row => row.slice()); // ← 深いコピー
+  const newHands = data.hands.map(row => row.slice());
   newHands[playerIndex][index] = null;
 
   const newSubmit = data.submitOrder ? [...data.submitOrder] : [];
+
+  // ★ 毎回ユニークIDを付ける（Firebase が更新を認識する）
   newSubmit.push({
+    id: Date.now() + Math.random(),
     value: cardValue,
     player: playerName
   });
@@ -411,10 +406,7 @@ function renderSubmitList() {
 
   submitOrder.forEach((item, i) => {
     const span = document.createElement("span");
-    span.innerHTML = `
-      <img src="cards/card_back.svg" class="card-img-small">
-      ${i + 1}番目: ${item.player} がカードを提出
-    `;
+    span.textContent = `${i + 1}番目: ${item.player} が提出`;
     submitList.appendChild(span);
   });
 }
